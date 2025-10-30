@@ -2,7 +2,8 @@ from bot.dispatcher import Dispatcher
 from bot.handlers import get_handlers
 from bot.long_polling import start_long_polling
 
-def main()->None:
+
+def main() -> None:
     try:
         dispatcher = Dispatcher()
         dispatcher.add_handlers(*get_handlers())

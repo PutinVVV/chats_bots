@@ -4,14 +4,15 @@ import bot.database_client
 import bot.telegram_client
 from bot.handlers.handler import Handler, HandlerStatus
 
+
 class MessageStart(Handler):
     def can_handle(self, update: dict, state: str, order_json: dict):
-        return(
+        return (
             "message" in update
             and "text" in update["message"]
             and update["message"]["text"] == "/start"
         )
-    
+
     def handle(self, update: dict, state: str, order_json: dict):
         telegram_id = update["message"]["from"]["id"]
 
@@ -19,15 +20,15 @@ class MessageStart(Handler):
         bot.database_client.update_user_state(telegram_id, "WHAIT_FOR_PIZZA_NAME")
 
         bot.telegram_client.sendMessage(
-            chat_id = update["message"]["chat"]["id"],
-            text = "Whelcome to Pizza shop!",
-            reply_markup = json.dumps({"remove_keyboard": True})
+            chat_id=update["message"]["chat"]["id"],
+            text="Whelcome to Pizza shop!",
+            reply_markup=json.dumps({"remove_keyboard": True}),
         )
 
         bot.telegram_client.sendMessage(
-            chat_id = update["message"]["chat"]["id"],
-            text = "Please choose pizza name",
-            reply_markup = json.dumps(
+            chat_id=update["message"]["chat"]["id"],
+            text="Please choose pizza name",
+            reply_markup=json.dumps(
                 {
                     "inline_keyboard": [
                         [
@@ -40,6 +41,6 @@ class MessageStart(Handler):
                         ],
                     ]
                 }
-            )
+            ),
         )
         return HandlerStatus.STOP

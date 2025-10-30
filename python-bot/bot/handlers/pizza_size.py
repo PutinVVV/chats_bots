@@ -3,17 +3,18 @@ import bot.telegram_client
 import bot.database_client
 from bot.handlers.handler import Handler, HandlerStatus
 
+
 class PizzaSize(Handler):
     def can_handle(self, update: dict, state: str, order_json: dict):
         if "callback_query" not in update:
             return False
-        
+
         if state != "WHAIT_FOR_PIZZA_SIZE":
             return False
-        
+
         callback_data = update["callback_query"]["data"]
         return callback_data.startswith("size_")
-    
+
     def handle(self, update: dict, state: str, order_json: dict):
         telegram_id = update["callback_query"]["from"]["id"]
         callback_data = update["callback_query"]["data"]
@@ -31,18 +32,24 @@ class PizzaSize(Handler):
         bot.database_client.update_user_state(telegram_id, "WHAIT_FOR_DRINKS")
         bot.telegram_client.answerCallbackQuery(update["callback_query"]["id"])
         bot.telegram_client.deleteMessage(
-            chat_id = update["callback_query"]["message"]["chat"]["id"],
-            message_id = update["callback_query"]["message"]["message_id"]
+            chat_id=update["callback_query"]["message"]["chat"]["id"],
+            message_id=update["callback_query"]["message"]["message_id"],
         )
         bot.telegram_client.sendMessage(
-            chat_id = update["callback_query"]["message"]["chat"]["id"],
-            text = "Please choose some drinks",
-            reply_markup = json.dumps(
+            chat_id=update["callback_query"]["message"]["chat"]["id"],
+            text="Please choose some drinks",
+            reply_markup=json.dumps(
                 {
                     "inline_keyboard": [
                         [
-                            {"text": "Apple juice", "callback_data": "drink_apple_juice"},
-                            {"text": "Orange juice", "callback_data": "drink_orange_juice"},
+                            {
+                                "text": "Apple juice",
+                                "callback_data": "drink_apple_juice",
+                            },
+                            {
+                                "text": "Orange juice",
+                                "callback_data": "drink_orange_juice",
+                            },
                         ],
                         [
                             {"text": "Coke-Cola", "callback_data": "drink_coke_cola"},
@@ -53,6 +60,6 @@ class PizzaSize(Handler):
                         ],
                     ]
                 }
-            )
+            ),
         )
         return HandlerStatus.STOP
