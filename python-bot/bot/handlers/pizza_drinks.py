@@ -1,9 +1,10 @@
 from bot.domain.messenger import Messenger
 from bot.domain.storage import Storage
+from bot.interface.keyboards import PIZZA_DRINK_MAPPING, ORDER_KEYBOARD
 from bot.handlers.handler import Handler, HandlerStatus
 
 
-class PizzaOrderHandler(Handler):
+class PizzaDrinksHandler(Handler):
     def can_handle(
         self,
         update: dict,
@@ -15,11 +16,11 @@ class PizzaOrderHandler(Handler):
         if "callback_query" not in update:
             return False
 
-        if state != "WAIT_FOR_ORDER_APPROVE":
+        if state != "WAIT_FOR_DRINKS":
             return False
 
         callback_data = update["callback_query"]["data"]
-        return callback_data.startswith("order_")
+        return callback_data.startswith("drink_")
 
     def handle(
         self,
@@ -32,25 +33,20 @@ class PizzaOrderHandler(Handler):
         telegram_id = update["callback_query"]["from"]["id"]
         callback_data = update["callback_query"]["data"]
 
-        storage.update_user_state(telegram_id, "ORDER_FINISHED")
+        drink = PIZZA_DRINK_MAPPING.get(callback_data)
+        order_json["drink"] = drink
+        storage.update_user_order_json(telegram_id, order_json)
+        storage.update_user_state(telegram_id, "WAIT_FOR_ORDER_APPROVE")
 
         messenger.answer_callback_query(update["callback_query"]["id"])
 
-        """depending on the response, it was possible to accept different states for further processing
-        then this handler returns CONTINUE, and add handlers to those different states
-        which will be after him in the __init__"""
-        if callback_data == "order_ok":
-            order_summary = (
-                "Order accepted!\n"
-                f"- Pizza: {order_json.get('pizza_name', 'Not selected')}\n"
-                f"- Size: {order_json.get('pizza_size', 'Not selected')}\n"
-                f"- Drink: {order_json.get('drink', 'Not selected')}\n\n"
-                "To re-order, press /start"
-            )
-        else:
-            order_summary = (
-                "The order was not accepted!\n\n" "To re-order, press /start"
-            )
+        order_summary = (
+            "Your order:\n"
+            f"- Pizza: {order_json.get('pizza_name', 'Not selected')}\n"
+            f"- Size: {order_json.get('pizza_size', 'Not selected')}\n"
+            f"- Drink: {order_json.get('drink', 'Not selected')}\n\n"
+            "Сonfirm the order?"
+        )
 
         messenger.delete_message(
             chat_id=update["callback_query"]["message"]["chat"]["id"],
@@ -59,5 +55,6 @@ class PizzaOrderHandler(Handler):
         messenger.send_message(
             chat_id=update["callback_query"]["message"]["chat"]["id"],
             text=order_summary,
+            reply_markup=ORDER_KEYBOARD,
         )
         return HandlerStatus.STOP

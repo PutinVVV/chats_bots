@@ -1,11 +1,11 @@
-from bot.handlers.handler import Handler
 from bot.handlers.database_logger import DatabaseLogger
 from bot.handlers.ensure_user_exists import EnsureUserExists
+from bot.handlers.handler import Handler
 from bot.handlers.message_start import MessageStart
-from bot.handlers.pizza_finish import PizzaFinish
-from bot.handlers.pizza_order import PizzaOrder
-from bot.handlers.pizza_selection import PizzaSelection
-from bot.handlers.pizza_size import PizzaSize
+from bot.handlers.pizza_drinks import PizzaDrinksHandler
+from bot.handlers.pizza_order import PizzaOrderHandler
+from bot.handlers.pizza_selection import PizzaSlectionHandler
+from bot.handlers.pizza_size import PizzaSizeHandler
 
 
 def get_handlers() -> list[Handler]:
@@ -13,8 +13,8 @@ def get_handlers() -> list[Handler]:
         DatabaseLogger(),
         EnsureUserExists(),
         MessageStart(),
-        PizzaSelection(),
-        PizzaSize(),
-        PizzaOrder(),
-        PizzaFinish(),
+        PizzaSlectionHandler(),
+        PizzaSizeHandler(),
+        PizzaDrinksHandler(),
+        PizzaOrderHandler(),
     ]
