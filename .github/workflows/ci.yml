@@ -9,7 +9,6 @@ on:
 jobs:
   code-quality:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -17,29 +16,29 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.13'
+        python-version: '3.12'
 
     - name: Cache pip dependencies
       uses: actions/cache@v3
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/reqirements.txt') }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('python-bot/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        pip install -r python-bot/requirements.txt
 
     - name: Run Black code style check
       run: |
-        black --check bot/ tests/
+        black --check python-bot/bot/ python-bot/tests/
 
     - name: Run Ruff linting check
       run: |
-        ruff check bot/ tests/
+        ruff check python-bot/bot/ python-bot/tests/
 
     - name: Run pytest tests
       run: |
-        PYTHONPATH=. pytest tests/ -v
+        PYTHONPATH=python-bot pytest python-bot/tests/ -v
