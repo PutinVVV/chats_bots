@@ -48,9 +48,7 @@ class PizzaOrderHandler(Handler):
                 "To re-order, press /start"
             )
         else:
-            order_summary = (
-                "The order was not accepted!\n\n" "To re-order, press /start"
-            )
+            order_summary = "The order was not accepted!\n\nTo re-order, press /start"
 
         messenger.delete_message(
             chat_id=update["callback_query"]["message"]["chat"]["id"],
