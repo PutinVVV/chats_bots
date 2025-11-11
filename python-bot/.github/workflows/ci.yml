@@ -9,7 +9,6 @@ on:
 jobs:
   code-quality:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -23,23 +22,23 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('chats_bots/python-bot/requirements.txt') }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('python-bot/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r chats_bots/python-bot/requirements.txt
+        pip install -r python-bot/requirements.txt
 
     - name: Run Black code style check
       run: |
-        black --check chats_bots/python-bot/bot/ chats_bots/python-bot/tests/
+        black --check python-bot/bot/ python-bot/tests/
 
     - name: Run Ruff linting check
       run: |
-        ruff check chats_bots/python-bot/bot/ chats_bots/python-bot/tests/
+        ruff check python-bot/bot/ python-bot/tests/
 
     - name: Run pytest tests
       run: |
-        PYTHONPATH=chats_bots/python-bot pytest chats_bots/python-bot/tests/ -v
+        PYTHONPATH=python-bot pytest python-bot/tests/ -v
