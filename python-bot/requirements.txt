@@ -1,4 +1,6 @@
 python-dotenv
 black
-ruff 
+ruff
 pytest
+pg8000
+python-dotenv

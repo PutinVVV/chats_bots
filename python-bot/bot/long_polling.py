@@ -1,4 +1,3 @@
-import time
 from bot.domain.messenger import Messenger
 from bot.dispatcher import Dispatcher
 
@@ -11,5 +10,3 @@ def start_long_polling(dispatcher: Dispatcher, messenger: Messenger) -> None:
             next_update_offset = max(next_update_offset, update["update_id"] + 1)
             dispatcher.dispatch(update)
             print(".", end="", flush=True)
-
-        time.sleep(1)
