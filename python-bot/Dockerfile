@@ -1,0 +1,19 @@
+FROM python:3.14
+
+WORKDIR /app
+
+COPY requirements.txt .
+
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# создаём venv и ставим зависимости без кэша
+RUN python -m venv /app/venv && \
+    /app/venv/bin/pip install --upgrade pip && \
+    /app/venv/bin/pip install --no-cache-dir -r requirements.txt
+
+ENV PATH="/app/venv/bin:$PATH"
+
+COPY bot/ ./bot/
+
+ENTRYPOINT ["/entrypoint.sh"]
