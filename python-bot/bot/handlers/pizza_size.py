@@ -42,7 +42,8 @@ class PizzaSizeHandler(Handler):
         await asyncio.gather(
             storage.update_user_order_json(telegram_id, order_json),
             storage.update_user_state(telegram_id, "WAIT_FOR_DRINKS"),
-            messenger.answer_callback_query(callback_query_id),)
+            messenger.answer_callback_query(callback_query_id),
+        )
         await asyncio.gather(
             messenger.delete_message(
                 chat_id=chat_id,

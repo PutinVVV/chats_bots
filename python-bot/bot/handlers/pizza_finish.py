@@ -1,4 +1,3 @@
-import json
 import asyncio
 
 from bot.domain.messenger import Messenger
@@ -18,7 +17,7 @@ class PizzaFinish(Handler):
     ) -> bool:
         if "callback_query" not in update:
             return False
-        if state != "WHAIT_FOR_APROVE":  
+        if state != "WHAIT_FOR_APROVE":
             return False
         callback_data = update["callback_query"]["data"]
         return callback_data.startswith("order_")
@@ -37,7 +36,9 @@ class PizzaFinish(Handler):
         callback_data = callback_query["data"]
 
         await messenger.answer_callback_query(callback_query["id"])
-        await messenger.delete_message(chat_id=chat_id, message_id=callback_query["message"]["message_id"])
+        await messenger.delete_message(
+            chat_id=chat_id, message_id=callback_query["message"]["message_id"]
+        )
 
         order_actions = {
             "order_confirm": "Confirm order",
@@ -62,7 +63,7 @@ class PizzaFinish(Handler):
             await messenger.send_message(chat_id=chat_id, text=order_text)
 
         elif action == "Start again":
-            await storage.clear_user_state_and_order(user_id) 
+            await storage.clear_user_state_and_order(user_id)
             await storage.update_user_state(user_id, "WHAIT_FOR_PIZZA_NAME")
             await asyncio.gather(
                 messenger.send_message(

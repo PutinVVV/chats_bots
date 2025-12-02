@@ -24,4 +24,3 @@ class DatabaseLogger(Handler):
     ) -> HandlerStatus:
         await storage.persist_update(update)
         return HandlerStatus.CONTINUE
-

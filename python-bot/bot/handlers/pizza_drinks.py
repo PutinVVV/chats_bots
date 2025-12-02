@@ -63,5 +63,6 @@ class PizzaDrinksHandler(Handler):
                 chat_id=chat_id,
                 text=order_summary,
                 reply_markup=ORDER_KEYBOARD,
-            ),)
+            ),
+        )
         return HandlerStatus.STOP

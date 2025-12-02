@@ -1,6 +1,4 @@
-import json
 import os
-import urllib.request
 import logging
 import time
 import aiohttp
@@ -63,15 +61,17 @@ class MessengerTelegram(Messenger):
         return await self._make_request(
             "sendMessage", chat_id=chat_id, text=text, **params
         )
+
     async def get_updates(self, **params) -> list:
         return await self._make_request("getUpdates", **params)
-    
+
     async def delete_message(self, chat_id: int, message_id: int) -> dict:
         return await self._make_request(
             "deleteMessage",
             chat_id=chat_id,
             message_id=message_id,
         )
+
     async def answer_callback_query(self, callback_query_id: str, **params) -> dict:
         return await self._make_request(
             "answerCallbackQuery",
