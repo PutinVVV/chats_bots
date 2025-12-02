@@ -1,10 +1,12 @@
+import pytest
 from bot.dispatcher import Dispatcher
 from bot.handlers.database_logger import DatabaseLogger
 
 from tests.mocks import Mock
 
 
-def test_database_logger_handler():
+@pytest.mark.asyncio
+async def test_database_logger_handler():
     test_update = {
         "update_id": 123456789,
         "message": {
@@ -28,12 +30,12 @@ def test_database_logger_handler():
 
     persist_update_called = False
 
-    def persist_update(update: dict) -> None:
+    async def persist_update(update: dict) -> None:
         nonlocal persist_update_called
         persist_update_called = True
         assert update == test_update
 
-    def get_user(telegram_id: int) -> dict | None:
+    async def get_user(telegram_id: int) -> dict | None:
         assert telegram_id == 12345
         return None
 
@@ -48,6 +50,6 @@ def test_database_logger_handler():
     dispatcher = Dispatcher(mock_storage, mock_messenger)
     db_logger = DatabaseLogger()
     dispatcher.add_handlers(db_logger)
-    dispatcher.dispatch(test_update)
+    await dispatcher.dispatch(test_update)
 
     assert persist_update_called

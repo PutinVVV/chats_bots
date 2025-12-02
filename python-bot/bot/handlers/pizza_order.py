@@ -1,3 +1,5 @@
+import asyncio
+
 from bot.domain.messenger import Messenger
 from bot.domain.storage import Storage
 from bot.handlers.handler import Handler, HandlerStatus
@@ -21,7 +23,7 @@ class PizzaOrderHandler(Handler):
         callback_data = update["callback_query"]["data"]
         return callback_data.startswith("order_")
 
-    def handle(
+    async def handle(
         self,
         update: dict,
         state: str,
@@ -32,9 +34,9 @@ class PizzaOrderHandler(Handler):
         telegram_id = update["callback_query"]["from"]["id"]
         callback_data = update["callback_query"]["data"]
 
-        storage.update_user_state(telegram_id, "ORDER_FINISHED")
-
-        messenger.answer_callback_query(update["callback_query"]["id"])
+        chat_id = update["callback_query"]["message"]["chat"]["id"]
+        message_id = update["callback_query"]["message"]["message_id"]
+        callback_query_id = update["callback_query"]["id"]
 
         """depending on the response, it was possible to accept different states for further processing
         then this handler returns CONTINUE, and add handlers to those different states
@@ -50,12 +52,14 @@ class PizzaOrderHandler(Handler):
         else:
             order_summary = "The order was not accepted!\n\nTo re-order, press /start"
 
-        messenger.delete_message(
-            chat_id=update["callback_query"]["message"]["chat"]["id"],
-            message_id=update["callback_query"]["message"]["message_id"],
-        )
-        messenger.send_message(
-            chat_id=update["callback_query"]["message"]["chat"]["id"],
-            text=order_summary,
+        await asyncio.gather(
+            messenger.answer_callback_query(callback_query_id),
+            storage.update_user_state(telegram_id, "ORDER_FINISHED"),
+            messenger.delete_message(chat_id=chat_id, message_id=message_id),
+            messenger.send_message(
+                chat_id=chat_id,
+                text=order_summary,
+            ),
         )
         return HandlerStatus.STOP
+        

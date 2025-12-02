@@ -89,3 +89,6 @@ run: docker_volume
 stop:
 	docker stop $(BOT_CONTAINER)
 	docker rm $(BOT_CONTAINER)
+
+logs:
+	docker logs -f $(BOT_CONTAINER)

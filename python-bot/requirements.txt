@@ -4,3 +4,6 @@ ruff
 pytest
 pg8000
 python-dotenv
+pytest-asyncio
+aiohttp
+asyncpg

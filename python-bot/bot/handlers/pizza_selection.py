@@ -1,3 +1,5 @@
+import asyncio
+
 from bot.domain.messenger import Messenger
 from bot.domain.storage import Storage
 from bot.interface.keyboards import PIZZA_NAME_MAPPING, PIZZA_SIZE_KEYBOARD
@@ -22,7 +24,7 @@ class PizzaSlectionHandler(Handler):
         callback_data = update["callback_query"]["data"]
         return callback_data.startswith("pizza_")
 
-    def handle(
+    async def handle(
         self,
         update: dict,
         state: str,
@@ -32,19 +34,25 @@ class PizzaSlectionHandler(Handler):
     ) -> HandlerStatus:
         telegram_id = update["callback_query"]["from"]["id"]
         callback_data = update["callback_query"]["data"]
-
+        chat_id = update["callback_query"]["message"]["chat"]["id"]
+        message_id = update["callback_query"]["message"]["message_id"]
+        callback_query_id = update["callback_query"]["id"]
         pizza_name = PIZZA_NAME_MAPPING.get(callback_data)
-        storage.update_user_order_json(telegram_id, {"pizza_name": pizza_name})
-        storage.update_user_state(telegram_id, "WAIT_FOR_PIZZA_SIZE")
-        messenger.answer_callback_query(update["callback_query"]["id"])
 
-        messenger.delete_message(
-            chat_id=update["callback_query"]["message"]["chat"]["id"],
-            message_id=update["callback_query"]["message"]["message_id"],
+        await asyncio.gather(
+            storage.update_user_order_json(telegram_id, {"pizza_name": pizza_name}),
+            storage.update_user_state(telegram_id, "WAIT_FOR_PIZZA_SIZE"),
+            messenger.answer_callback_query(callback_query_id),
         )
-        messenger.send_message(
-            chat_id=update["callback_query"]["message"]["chat"]["id"],
-            text="Please select pizza size",
-            reply_markup=PIZZA_SIZE_KEYBOARD,
+        await asyncio.gather(
+            messenger.delete_message(
+                chat_id=chat_id,
+                message_id=message_id,
+            ),
+            messenger.send_message(
+                chat_id=chat_id,
+                text="Please select pizza size",
+                reply_markup=PIZZA_SIZE_KEYBOARD,
+            ),
         )
         return HandlerStatus.STOP
